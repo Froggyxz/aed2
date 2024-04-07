@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #define MAX_PECAS 10
+#define MAX_FUNCIONARIOS 10
 
 typedef struct FUNCIONARIO {
     char nome_funcionario[50];
@@ -20,6 +21,7 @@ typedef struct {
     int estoque;
 } Peca;
 
+FUNCIONARIO funcionarios[MAX_FUNCIONARIOS];
 Peca pecas[MAX_PECAS];
 int count = 0;
 
@@ -162,37 +164,112 @@ void receber_dados_arquivo() {
 
 //funcoes funcionario
 
-/*Funcionario cadastro_funcionario(){
-     
+void cadastrarFuncionario() {
+    if (count < MAX_FUNCIONARIOS) {
+        printf("Digite o nome do funcionário: ");
+        scanf("%s", funcionarios[count].nome_funcionario);
+
+        printf("Digite o ID do funcionário: ");
+        scanf("%d", &funcionarios[count].id_funcionario);
+
+        printf("Digite o carro em reparo pelo funcionário: ");
+        scanf("%s", funcionarios[count].carro_consertando);
+        count++;
+        printf("Funcionário cadastrado com sucesso!\n");
+    } else {
+        printf("Limite de registro de funcionários atingido.\n");
+    }
 }
-Funcionario atualizar_funcionario(){
-    
+
+void atualizarFuncionario() {
+    int id;
+    printf("Digite o ID do funcionário a ser atualizado: ");
+    scanf("%d", &id);
+
+    for (int i = 0; i < count; i++) {
+        if (funcionarios[i].id_funcionario == id) {
+            printf("Digite o nome do funcionário: ");
+            scanf("%s", funcionarios[i].nome_funcionario);
+
+            printf("Digite o ID do funcionário: ");
+            scanf("%d", &funcionarios[i].id_funcionario);
+
+            printf("Funcionário atualizado com sucesso!\n");
+            return;
+        }
+    }
+
+    printf("Funcionário não encontrado.\n");
 }
-Funcionario desligar_funcionario(){
 
+void removerFuncionario() {
+    int id;
+    printf("Digite o ID do funcionário a ser removido: ");
+    scanf("%d", &id);
+
+    for (int i = 0; i < count; i++) {
+        if (funcionarios[i].id_funcionario == id) {
+            for (int j = i; j < count - 1; j++) {
+                funcionarios[j] = funcionarios[j + 1];
+            }
+            count--;
+            printf("Funcionário removido com sucesso!\n");
+            return;
+        }
+    }
+
+    printf("Funcionário não encontrado.\n");
 }
-Funcionario buscar_funcionario(){
 
+void buscarFuncionario() {
+    int id;
+    printf("Digite o ID do funcionário a ser buscado: ");
+    scanf("%d", &id);
+
+    for (int i = 0; i < count; i++) {
+        if (funcionarios[i].id_funcionario == id) {
+            printf("Nome: %s\n", funcionarios[i].nome_funcionario);
+            printf("ID: %d\n", funcionarios[i].id_funcionario);
+            printf("Carro em reparo: %s\n", funcionarios[i].carro_consertando);
+            printf("Total recebido: %.2f\n", funcionarios[i].total_recebido);
+            return;
+      
+        }
+    }
 }
-Funcionario listagem_funcionario(){
-    
+
+void atualizarCarro() {
+    int id;
+    printf("Digite o ID do funcionário para atualizar o carro: ");
+    scanf("%d", &id);
+    for (int i = 0; i < count; i++) {
+        if (funcionarios[i].id_funcionario == id) {
+            printf("Digite o novo carro em reparo pelo funcionário: ");
+            scanf("%s", funcionarios[i].carro_consertando);
+            printf("Carro atualizado com sucesso!\n");
+            return;
+        }
+    }
+    printf("Funcionário não encontrado.\n");
 }
-Funcionario salario_funcionario(){
-     
-}*/
 
-//manipulacao de arquivos
-
-
-/*void gravar_dados_funcionario(Funcionario funcionario) {
-
-}*/
-
-/*
-Funcionario recuperar_dados_funcionario() {
-    
+void calcularTotalRecebido() {
+    int id;
+    printf("Digite o ID do funcionário para calcular o total recebido: ");
+    scanf("%d", &id);
+    for (int i = 0; i < count; i++) {
+        if (funcionarios[i].id_funcionario == id) {
+            printf("Carro consertado: %s\n", funcionarios[i].carro_consertando);
+            printf("Qual o total da mão de obra? ");
+            scanf("%f", &funcionarios[i].vai_receber);
+            funcionarios[i].vai_receber += funcionarios[i].total_recebido;
+            strcpy(funcionarios[i].carro_consertando, "Nenhum");
+            printf(" calculado com sucesso!\n");
+            return;
+        }
+    }
+    printf("Funcionário não encontrado.\n");
 }
-*/
 // menus
 
 void menu_opcoes(){
@@ -256,7 +333,46 @@ void menu_opcoes_funcionario(){
     printf("6 - Calcular salario\n");
     printf("7 - escrever dados no arquivo\n");
     printf("8 - receber dados do arquivo\n");
-    printf("9 - Voltar\n");
+    printf("9 - Atualizar carro\n");
+    printf("0 - Voltar\n");
+    int opcao;
+    scanf("%d", &opcao);
+    while (opcao != 0){
+    switch(opcao){
+        case 1:
+            cadastrarFuncionario();
+            break;
+        case 2:
+            atualizarFuncionario();
+            break;
+        case 3:
+            removerFuncionario();
+            break;
+        case 4:
+            buscarFuncionario();
+            break;
+        case 5:
+            listarFuncionarios();
+            break;
+        case 6:
+            calcularTotalRecebido();
+            break;
+        case 7:
+            
+            break;
+        case 8:
+            
+            break;
+        case 9:
+            atualizarCarro();
+            break;
+        case 0:
+            menu_opcoes();
+            break;
+        default:
+            printf("Opcao invalida!\n");
+    }
+}
 }
 
 int main(){
