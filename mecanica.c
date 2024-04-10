@@ -45,9 +45,6 @@ typedef struct Mecanica
     int count_removidas;
 } Mecanica;
 
-
-
-
 Mecanica inicializarMecanica()
 {
     Mecanica mecanica;
@@ -148,37 +145,38 @@ void retirar_peca(Mecanica *mecanica)
                 printf("Quantidade em estoque insuficiente.\n");
                 return;
             }
+            printf("count_removidas: %d\n", mecanica->count_removidas);
             if (mecanica->count_removidas < MAX_REMOVIDAS)
             {
-            mecanica->pecas[i].estoque -= RETIRAR.qtd;
-            mecanica->removidas[mecanica->count_removidas].id_peca = mecanica->pecas[i].id;
-            strncpy(mecanica->removidas[mecanica->count_removidas].nome_peca, mecanica->pecas[i].nome, sizeof(mecanica->pecas[i].nome));
-            mecanica->removidas[mecanica->count_removidas].id_funcionario = RETIRAR.id_funcionario;
-            strncpy(mecanica->removidas[mecanica->count_removidas].data_comprada, mecanica->pecas[i].data_comprada, sizeof(mecanica->pecas[i].data_comprada));
-            mecanica->removidas[mecanica->count_removidas].qtd = RETIRAR.qtd;
+                mecanica->pecas[i].estoque -= RETIRAR.qtd;
+                mecanica->removidas[mecanica->count_removidas].id_peca = mecanica->pecas[i].id;
+                strncpy(mecanica->removidas[mecanica->count_removidas].nome_peca, mecanica->pecas[i].nome, sizeof(mecanica->pecas[i].nome));
+                mecanica->removidas[mecanica->count_removidas].id_funcionario = RETIRAR.id_funcionario;
+                strncpy(mecanica->removidas[mecanica->count_removidas].data_comprada, mecanica->pecas[i].data_comprada, sizeof(mecanica->pecas[i].data_comprada));
+                mecanica->removidas[mecanica->count_removidas].qtd = RETIRAR.qtd;
+                mecanica->count_removidas++;
+
+                FILE *fp;
+                fp = fopen("retiradas.txt", "wb");
+                if (fp == NULL)
+                {
+                    printf("Erro ao abrir o arquivo.\n");
+                    return;
+                }
+                else
+                {
+                    fwrite(mecanica->removidas, sizeof(Removidas), mecanica->count_removidas, fp);
+                    fclose(fp);
+                    printf("Dados escritos no arquivo com sucesso!\n");
+                }
             }
-            else
-            {
-                printf("Limite de registro de peças retiradas atingido.\n");
-                return;
-            }
+
             printf("Peça com id %d retirada com sucesso!\n", idpeca);
-            
-        }
-        FILE *fp;
-        fp = fopen("retiradas.txt", "wb");
-        if (fp == NULL){
-        printf("Erro ao abrir o arquivo.\n");
-        return;
         }
 
-    fwrite(mecanica->removidas, sizeof(Removidas), mecanica->count_removidas, fp);
-
-    fclose(fp);
     }
-
-    printf("Peça com id %d não encontrada.\n", idpeca);
 }
+
 
 void buscar_peca(Mecanica *mecanica)
 {
@@ -264,24 +262,28 @@ void receber_dados_arquivo(Mecanica *mecanica)
 
 // funcoes de ordenacao
 
-
-int compara_strings(const void *a, const void *b) {
+int compara_strings(const void *a, const void *b)
+{
     return strcmp(((const Peca *)a)->nome, ((const Peca *)b)->nome);
 }
 
-void troca(void *a, void *b) {
+void troca(void *a, void *b)
+{
     Peca temp;
     memcpy(&temp, a, sizeof(Peca));
     memcpy(a, b, sizeof(Peca));
     memcpy(b, &temp, sizeof(Peca));
 }
 
-int particiona(void *arr, int esq, int dir, int (*compara)(const void *, const void *)) {
+int particiona(void *arr, int esq, int dir, int (*compara)(const void *, const void *))
+{
     void *pivo = ((char *)arr + dir * sizeof(Peca));
     int i = esq - 1;
 
-    for (int j = esq; j < dir; j++) {
-        if (compara(((char *)arr + j * sizeof(Peca)), pivo) < 0) {
+    for (int j = esq; j < dir; j++)
+    {
+        if (compara(((char *)arr + j * sizeof(Peca)), pivo) < 0)
+        {
             i++;
             troca(((char *)arr + i * sizeof(Peca)), ((char *)arr + j * sizeof(Peca)));
         }
@@ -290,45 +292,48 @@ int particiona(void *arr, int esq, int dir, int (*compara)(const void *, const v
     return i + 1;
 }
 
-
-void quickSort(void *arr, int esq, int dir, int (*compara)(const void *, const void *)) {
-    if (esq < dir) {
+void quickSort(void *arr, int esq, int dir, int (*compara)(const void *, const void *))
+{
+    if (esq < dir)
+    {
         int p = particiona(arr, esq, dir, compara);
         quickSort(arr, esq, p - 1, compara);
         quickSort(arr, p + 1, dir, compara);
     }
 }
 
-
-void ordernarNomes(Mecanica *mecanica, int (*compara)(const void *, const void *)) {
+void ordernarNomes(Mecanica *mecanica, int (*compara)(const void *, const void *))
+{
     printf("O Que voce quer ordenar?\n");
     printf("1 - Pecas (por nome)\n");
     printf("2 - Funcionarios(por nome)\n");
     printf("3- Pecas retiradas(por funcionario)\n");
     int opcao;
     scanf("%d", &opcao);
-    switch (opcao) {
-        case 1:
-            quickSort(mecanica->pecas, 0, mecanica->count_pecas - 1, compara);
-            break;
-        case 2:
-            quickSort(mecanica->funcionarios, 0, mecanica->count_funcionarios - 1, compara);
-            break;
-        case 3:
-            quickSort(mecanica->removidas, 0, mecanica->count_removidas - 1, compara);
-            break;
-        default:
-            printf("Opcao invalida!\n");
+    switch (opcao)
+    {
+    case 1:
+        quickSort(mecanica->pecas, 0, mecanica->count_pecas - 1, compara);
+        break;
+    case 2:
+        quickSort(mecanica->funcionarios, 0, mecanica->count_funcionarios - 1, compara);
+        break;
+    case 3:
+        quickSort(mecanica->removidas, 0, mecanica->count_removidas - 1, compara);
+        break;
+    default:
+        printf("Opcao invalida!\n");
     }
 }
 
-//lista de pecas retiradas
+// lista de pecas retiradas
 
-
-void imprimeretiradas(Mecanica *mecanica){
+void imprimeretiradas(Mecanica *mecanica)
+{
     FILE *fp;
     fp = fopen("retiradas.txt", "rb");
-    if (fp == NULL){
+    if (fp == NULL)
+    {
         printf("Erro ao abrir o arquivo.\n");
         return;
     }
@@ -342,9 +347,19 @@ void imprimeretiradas(Mecanica *mecanica){
         mecanica->count_removidas = num_retirada;
         printf("Dados lidos do arquivo com sucesso!\n");
     }
-   
+
     fclose(fp);
 
+    for (int i = 0; i < mecanica->count_removidas; i++)
+    {
+        printf("\nRetirada: %d", i + 1);
+        printf("\nNome da peça: %s", mecanica->removidas[i].nome_peca);
+        printf("ID da peça: %d", mecanica->removidas[i].id_peca);
+        printf("\nData Comprada: %s", mecanica->removidas[i].data_comprada);
+        printf("Quantidade retirada: %d", mecanica->removidas[i].qtd);
+        printf("\nID do funcionário: %d", mecanica->removidas[i].id_funcionario);
+        printf("Data da retirada: %s\n", mecanica->removidas[i].data_retirada);
+    }
 }
 
 // funcoes funcionario
@@ -444,7 +459,7 @@ void listarFuncionarios(Mecanica *mecanica)
 {
     printf("\nLista de todos os funcionarios da mecanica: ");
     printf("\n");
-    
+
     for (int i = 0; i < mecanica->count_funcionarios; i++)
     {
         printf("\nNome: %s", mecanica->funcionarios[i].nome_funcionario);
@@ -569,7 +584,7 @@ void menu_opcoes_peca(Mecanica *mecanica)
             ordernarNomes(mecanica, compara_strings);
             break;
         case 9:
-            //listarPecasRetiradas(mecanica);
+            imprimeretiradas(mecanica);
             break;
         case 0:
             menu_opcoes();
@@ -630,7 +645,7 @@ void menu_opcoes_funcionario(Mecanica *mecanica)
             ordernarNomes(mecanica, compara_strings);
             break;
         case 0:
-            menu_opcoes();
+            exit;
             break;
         default:
             printf("Opcao invalida!\n");
@@ -662,4 +677,5 @@ int main()
             break;
         }
     } while (opcao != 3);
+    return 0;
 }
