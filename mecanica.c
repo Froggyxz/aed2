@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <locale.h>
 
 #define MAX_PECAS 10
 #define MAX_FUNCIONARIOS 10
@@ -43,106 +44,6 @@ typedef struct Mecanica
     Removidas removidas[MAX_REMOVIDAS];
     int count_removidas;
 } Mecanica;
-
-
-// Função de comparação para strings
-int compara_strings(const void *a, const void *b) {
-    return strcmp(((const Peca *)a)->nome, ((const Peca *)b)->nome);
-}
-// Função auxiliar para trocar elementos
-void troca(void *a, void *b) {
-    Peca temp;
-    memcpy(&temp, a, sizeof(Peca));
-    memcpy(a, b, sizeof(Peca));
-    memcpy(b, &temp, sizeof(Peca));
-}
-// Função de particionamento genérica
-int particiona(void *arr, int esq, int dir, int (*compara)(const void *, const void *)) {
-    void *pivo = ((char *)arr + dir * sizeof(Peca));
-    int i = esq - 1;
-
-    for (int j = esq; j < dir; j++) {
-        if (compara(((char *)arr + j * sizeof(Peca)), pivo) < 0) {
-            i++;
-            troca(((char *)arr + i * sizeof(Peca)), ((char *)arr + j * sizeof(Peca)));
-        }
-    }
-    troca(((char *)arr + (i + 1) * sizeof(Peca)), ((char *)arr + dir * sizeof(Peca)));
-    return i + 1;
-}
-
-
-void quickSort(void *arr, int esq, int dir, int (*compara)(const void *, const void *)) {
-    if (esq < dir) {
-        int p = particiona(arr, esq, dir, compara);
-        quickSort(arr, esq, p - 1, compara);
-        quickSort(arr, p + 1, dir, compara);
-    }
-}
-
-// Função ordernar modificada para aceitar um ponteiro para a função de comparação
-void ordernarNomes(Mecanica *mecanica, int (*compara)(const void *, const void *)) {
-    printf("O Que voce quer ordenar?\n");
-    printf("1 - Pecas (por nome)\n");
-    printf("2 - Funcionarios(por nome)\n");
-    printf("3- Pecas retiradas(por funcionario)\n");
-    int opcao;
-    scanf("%d", &opcao);
-    switch (opcao) {
-        case 1:
-            quickSort(mecanica->pecas, 0, mecanica->count_pecas - 1, compara);
-            break;
-        case 2:
-            quickSort(mecanica->funcionarios, 0, mecanica->count_funcionarios - 1, compara);
-            break;
-        case 3:
-            quickSort(mecanica->removidas, 0, mecanica->count_removidas - 1, compara);
-            break;
-        default:
-            printf("Opcao invalida!\n");
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -312,12 +213,12 @@ void listar_pecas(Mecanica *mecanica)
 
     for (int i = 0; i < mecanica->count_pecas; i++)
     {
-        printf("\nPeca %d:", i + 1);
-        printf("Nome: %s", mecanica->pecas[i].nome);
-        printf("\nID: %d", mecanica->pecas[i].id);
-        printf("Data Comprada: %s", mecanica->pecas[i].data_comprada);
+        printf("\nPeca: %d", i + 1);
+        printf("\nNome: %s", mecanica->pecas[i].nome);
+        printf("ID: %d", mecanica->pecas[i].id);
+        printf("\nData Comprada: %s", mecanica->pecas[i].data_comprada);
         printf("Tipo de Carro: %s", mecanica->pecas[i].tipo_carro);
-        printf("\nEstoque: %d", mecanica->pecas[i].estoque);
+        printf("Estoque: %d\n", mecanica->pecas[i].estoque);
     }
 }
 
@@ -359,6 +260,91 @@ void receber_dados_arquivo(Mecanica *mecanica)
     }
 
     fclose(fp);
+}
+
+// funcoes de ordenacao
+
+
+int compara_strings(const void *a, const void *b) {
+    return strcmp(((const Peca *)a)->nome, ((const Peca *)b)->nome);
+}
+
+void troca(void *a, void *b) {
+    Peca temp;
+    memcpy(&temp, a, sizeof(Peca));
+    memcpy(a, b, sizeof(Peca));
+    memcpy(b, &temp, sizeof(Peca));
+}
+
+int particiona(void *arr, int esq, int dir, int (*compara)(const void *, const void *)) {
+    void *pivo = ((char *)arr + dir * sizeof(Peca));
+    int i = esq - 1;
+
+    for (int j = esq; j < dir; j++) {
+        if (compara(((char *)arr + j * sizeof(Peca)), pivo) < 0) {
+            i++;
+            troca(((char *)arr + i * sizeof(Peca)), ((char *)arr + j * sizeof(Peca)));
+        }
+    }
+    troca(((char *)arr + (i + 1) * sizeof(Peca)), ((char *)arr + dir * sizeof(Peca)));
+    return i + 1;
+}
+
+
+void quickSort(void *arr, int esq, int dir, int (*compara)(const void *, const void *)) {
+    if (esq < dir) {
+        int p = particiona(arr, esq, dir, compara);
+        quickSort(arr, esq, p - 1, compara);
+        quickSort(arr, p + 1, dir, compara);
+    }
+}
+
+
+void ordernarNomes(Mecanica *mecanica, int (*compara)(const void *, const void *)) {
+    printf("O Que voce quer ordenar?\n");
+    printf("1 - Pecas (por nome)\n");
+    printf("2 - Funcionarios(por nome)\n");
+    printf("3- Pecas retiradas(por funcionario)\n");
+    int opcao;
+    scanf("%d", &opcao);
+    switch (opcao) {
+        case 1:
+            quickSort(mecanica->pecas, 0, mecanica->count_pecas - 1, compara);
+            break;
+        case 2:
+            quickSort(mecanica->funcionarios, 0, mecanica->count_funcionarios - 1, compara);
+            break;
+        case 3:
+            quickSort(mecanica->removidas, 0, mecanica->count_removidas - 1, compara);
+            break;
+        default:
+            printf("Opcao invalida!\n");
+    }
+}
+
+//lista de pecas retiradas
+
+
+void imprimeretiradas(Mecanica *mecanica){
+    FILE *fp;
+    fp = fopen("retiradas.txt", "rb");
+    if (fp == NULL){
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+    int num_retirada = fread(mecanica->removidas, sizeof(Removidas), MAX_REMOVIDAS, fp);
+    if (num_retirada == 0)
+    {
+        printf("Nenhuma retirada encontrado no arquivo.\n");
+    }
+    else
+    {
+        mecanica->count_removidas = num_retirada;
+        printf("Dados lidos do arquivo com sucesso!\n");
+    }
+   
+    fclose(fp);
+
 }
 
 // funcoes funcionario
@@ -458,13 +444,13 @@ void listarFuncionarios(Mecanica *mecanica)
 {
     printf("\nLista de todos os funcionarios da mecanica: ");
     printf("\n");
-
+    
     for (int i = 0; i < mecanica->count_funcionarios; i++)
     {
-        printf("Nome: %s", mecanica->funcionarios[i].nome_funcionario);
-        printf("\nID: %d", mecanica->funcionarios[i].id_funcionario);
+        printf("\nNome: %s", mecanica->funcionarios[i].nome_funcionario);
+        printf("ID: %d\n", mecanica->funcionarios[i].id_funcionario);
         printf("Carro em reparo: %s", mecanica->funcionarios[i].carro_consertando);
-        printf("\nTotal recebido: R$%.2f", mecanica->funcionarios[i].total_recebido);
+        printf("Total recebido: R$%.2f\n", mecanica->funcionarios[i].total_recebido);
     }
 }
 
@@ -531,7 +517,7 @@ void receberDadosArquivoFunc(Mecanica *mecanica)
 void menu_opcoes()
 {
     printf("\n");
-    printf("1 - Pecas\n");
+    printf("1 - Peças\n");
     printf("2 - Funcionarios\n");
     printf("3 - Sair\n");
 }
@@ -542,17 +528,17 @@ void menu_opcoes_peca(Mecanica *mecanica)
     do
     {
         printf("\nMenu Pecas:\n");
-        printf("1 - Cadastrar peca\n");
-        printf("2 - Atualizar peca\n");
-        printf("3 - Retirar peca\n");
-        printf("4 - Buscar peca\n");
-        printf("5 - Listar pecas\n");
+        printf("1 - Cadastrar peça\n");
+        printf("2 - Atualizar peça\n");
+        printf("3 - Retirar peça\n");
+        printf("4 - Buscar peça\n");
+        printf("5 - Listar peças\n");
         printf("6 - Escrever dados no arquivo\n");
         printf("7 - Receber dados do arquivo\n");
-        printf("8 - Ordenar pecas\n");
-        printf("9- listar pecas retiradas\n");
+        printf("8 - Ordenar peças\n");
+        printf("9- listar peças retiradas\n");
         printf("0 - Sair\n");
-        printf("Escolha uma opcao: ");
+        printf("Escolha uma opção: ");
         scanf("%d", &opcao);
         getchar();
 
@@ -610,7 +596,7 @@ void menu_opcoes_funcionario(Mecanica *mecanica)
         printf("8 - receber dados do arquivo\n");
         printf("9 - Ordenar funcionarios\n");
         printf("0 - Voltar\n");
-        printf("Escolha uma opcao: ");
+        printf("Escolha uma opção: ");
         scanf("%d", &opcao);
         getchar();
 
@@ -654,6 +640,7 @@ void menu_opcoes_funcionario(Mecanica *mecanica)
 
 int main()
 {
+    setlocale(LC_ALL, "");
     Mecanica mecanica = inicializarMecanica();
     int opcao;
     do
