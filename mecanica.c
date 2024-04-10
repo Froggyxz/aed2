@@ -23,6 +23,7 @@ typedef struct Peca
     char data_comprada[10];
     char tipo_carro[50];
     int estoque;
+    char data_retirada[10];
 } Peca;
 
 typedef struct Removidas
@@ -152,7 +153,7 @@ void retirar_peca(Mecanica *mecanica)
                 mecanica->removidas[mecanica->count_removidas].id_peca = mecanica->pecas[i].id;
                 strncpy(mecanica->removidas[mecanica->count_removidas].nome_peca, mecanica->pecas[i].nome, sizeof(mecanica->pecas[i].nome));
                 mecanica->removidas[mecanica->count_removidas].id_funcionario = RETIRAR.id_funcionario;
-                strncpy(mecanica->removidas[mecanica->count_removidas].data_comprada, mecanica->pecas[i].data_comprada, sizeof(mecanica->pecas[i].data_comprada));
+                strncpy(mecanica->removidas[mecanica->count_removidas].data_retirada, mecanica->pecas[i].data_retirada, sizeof(mecanica->pecas[i].data_retirada));
                 mecanica->removidas[mecanica->count_removidas].qtd = RETIRAR.qtd;
                 mecanica->count_removidas++;
 
